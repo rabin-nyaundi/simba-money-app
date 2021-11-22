@@ -4,9 +4,10 @@ import CC from 'currency-converter-lt'
 
 
 export default async function handler(req, res) {
-
-    let status = true;
     const { receiver, currency, amount } = req.body;
+
+    let convertedAmount;
+    let status = true;
     const session = await getSession({ req });
     const user = await prisma.user.findUnique({
         where: {
@@ -30,6 +31,29 @@ export default async function handler(req, res) {
         res.status(400).json({ message: "Insufficient funds, transaction failed", status: 400 });
     }
     else {
+        // Amount is enough to transfer
+        // get target currency
+        // convert source currency to target currency
+        // update sender account balance
+        // update receiver account balance
+        // create transaction
+
+        const targetCurrency = await prisma.currency.findFirst({
+            where: {
+                id: Number(currency)
+            }
+        });
+
+        if (targetCurrency) {
+
+            let currencyConverter = new CC({ from: "USD", to: targetCurrency.code, amount: Number(amount) });
+
+            const curr = await currencyConverter.convert().then((response) => {
+                return convertedAmount = response;
+            })
+            // return curr;
+        }
+
         const newBalance = user.accountBalance - Number(amount);
         const receiverUser = await prisma.user.findUnique({
             where: {
@@ -37,31 +61,52 @@ export default async function handler(req, res) {
             }
         });
 
-        const receiverBalance = receiverUser.accountBalance + Number(amount);
+        const receiverBalance = receiverUser.accountBalance + Number(convertedAmount);
 
-        await prisma.user.update({
+        // Find sender account with matching currency
+        // update the balance
+
+        const userAccount = await prisma.account.findFirst({
             where: {
-                id: user.id
-            },
-            data: {
-                accountBalance: Number(newBalance)
+                userId: Number(session.token.sub),
             }
         });
+        if (userAccount) {
+            await prisma.account.update({
+                where: {
+                    id: userAccount.id
+                },
+                data: {
+                    balance: Number(newBalance)
+                }
+            });
+        }
 
+        // const userSend = await prisma.user.update({
+        //     where: {
+        //         id: user.id
+        //     },
+        //     data: {
+        //         accountBalance: Number(newBalance)
+        //     }
+        // });
+
+        // Find receiver account with matching currency
+        // update the balance   
         await prisma.user.update({
             where: {
                 id: receiverUser.id
             },
             data: {
-                accountBalance: Number(receiverBalance)
+                accountBalance: Math.floor(receiverBalance),
             }
         });
 
         const newTransaction = await prisma.transaction.create({
             data: {
-                senderId:  user.id,
+                senderId: user.id,
                 userId: receiverUser.id,
-                value: Number(amount),
+                value: Math.floor(convertedAmount),
                 currencyId: Number(currency),
                 code: Date.now().toString(),
                 exchangeRate: 113,
@@ -71,23 +116,7 @@ export default async function handler(req, res) {
         res.status(200).json({ message: "Transaction successful", status: 200, transaction: newTransaction });
     }
 
-    await prisma.user.create({
-        data: {
-            names: names,
-            email: email,
-            password: await bcrypt.hash(password, 8)
-        }
-    })
 
-    await prisma.account.create({
-        data: {
-            userId: newUser.id,
-            amount: 1000,
-            currency: "USD"
-        }
-    })
-
-    
     // convert currency
     // let convertedAmount;
     // let currencyConverter = new CC({ from: "USD", to: "EUR", amount: Number(amount) });
@@ -95,10 +124,10 @@ export default async function handler(req, res) {
     // const curr = await currencyConverter.convert().then((response) => {
     //     return convertedAmount = response;
     // })
-    
+
     // if (req.method === 'POST') {
 
-       
+
     //     console.log("Session user",session.token);
     //     const transaction = await prisma.transaction.create({
     //         data: {

@@ -23,7 +23,7 @@ export default function TransactionForm({ handleTransaction, users, currency }) 
     };
     return (
         <>
-            <div className="lg:w-1/2 form-group">
+            <div className="lg:w-1/2 form-group ">
                 <form
                     className="w-full bg-white shadow-md rounded px-8 pb-8 mb-4"
                     onSubmit={handleSubmit}

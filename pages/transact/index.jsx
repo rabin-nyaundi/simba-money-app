@@ -4,14 +4,18 @@ import Layout from "../../components/Layout/Layout";
 import Table from "../../components/ui/Table/Table";
 import { getSession } from "next-auth/react";
 
-export default function Index({ transactions, user }) {
+export default function Index({ transactions, user, balances }) {
 
     return (
         <>
             <Layout>
                 <div className="flex flex-row w-full p-4 justify-between">
-                    <div className="flex p-4">
-                        <span className="font-bold ml-4 mr-4">Balance :</span> <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">{user.accountBalance} USD</span>
+                    <div className="flex flex-row justify-between p-4">
+                        {balances.map((account, key) => (
+                            <div key={key} className="flex">
+                                <span className="font-bold ml-4 mr-4">Balance :</span> <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">{account.balance} USD</span>
+                            </div>
+                        ))}
                     </div>
                     <div className="flex flex-row">
                         <Link href="/transact/new-transaction">
@@ -66,15 +70,24 @@ export async function getServerSideProps(context) {
                 select: {
                     code: true
                 }
-            }
+            },
+
         }
     })
-    console.log(transactions);
+
+    const balances = await prisma.account.findMany({
+        where: {
+            userId: Number(session.token.sub)
+        }
+    });
+
+    console.log("balances", balances);
     return {
         props: {
             transactions: transactions,
             user: user,
-            session: session
+            session: session,
+            balances: balances
         }
     }
 }
