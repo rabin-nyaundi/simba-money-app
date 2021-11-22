@@ -39,12 +39,6 @@ export default function Transaction({ users, currency }) {
         )
     }
 
-    // async function getMySessions() {
-    //     const sess = await getSession()
-    //     console.log("sess", sess);
-    // }
-    // getMySessions();
-
 
     return (
         <>

@@ -19,9 +19,8 @@ model Transaction {
   currency     Currency? @relation(fields: [currencyId], references: [id])
   currencyId   Int?
   exchangeRate Int       @map(name: "exchange_rate")
-  value        Int?  @default(1000)
-  status       Boolean
-
+  value        Int?      @default(1000)
+  status       Boolean   @default(false)
 
   userId Int?
   @@map("transactions")
@@ -39,6 +38,7 @@ model User {
   updatedAt      DateTime?     @default(now()) @map(name: "updated_at")
   Transaction    Transaction[] @relation("receiver_id")
 
+  Account Account[]
   @@map(name: "users")
 }
 
@@ -50,5 +50,17 @@ model Currency {
   updatedAt    DateTime? @default(now()) @map(name: "updated_at")
 
   Transaction Transaction[]
+  Account     Account[]
   @@map(name: "currencies")
+}
+
+model Account {
+  id         Int       @id @default(autoincrement())
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     Int?
+  currency   Currency? @relation(fields: [currencyId], references: [id])
+  currencyId Int?
+  balance    Int?
+
+  @@map(name: "bank_accounts")
 }
