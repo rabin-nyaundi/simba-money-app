@@ -60,7 +60,7 @@ model Account {
   userId     Int?
   currency   Currency? @relation(fields: [currencyId], references: [id])
   currencyId Int?
-  balance    Int?
+  balance    Int
 
   @@map(name: "bank_accounts")
 }

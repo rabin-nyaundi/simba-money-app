@@ -1,21 +1,66 @@
 import { getSession } from "next-auth/react";
 import prisma from "../../../lib/prisma";
-import CC from 'currency-converter-lt'
-
+import CC from "currency-converter-lt";
 
 export default async function handler(req, res) {
     const { receiver, currency, amount } = req.body;
 
     let convertedAmount;
     let status = true;
+    
     const session = await getSession({ req });
+
+    console.log(session)
+
+    // Find the user logged in or sending money
     const user = await prisma.user.findUnique({
         where: {
             email: session.token.email,
-        }
+        },
     });
 
-    if (user.accountBalance < amount) {
+    // Find the sending account (to be debited)
+    const senderAccount = await prisma.account.findFirst({
+        where: {
+            userId: user.id,
+        }
+    });
+    // If it doesn't exist, return error
+    if (!senderAccount) {
+        return res.status(400).json({ message: "Invalid sender account", status: 400 });
+    }
+
+    // Find receiver user who is being transferred to 
+    const receiverUser = await prisma.user.findUnique({
+        where: {
+            id: Number(receiver),
+        },
+    });
+
+    // find receiver user's account which matches the target currency(account to be credited)
+    const receiverAccount = await prisma.account.findFirst({
+        where: {
+            AND: [
+                {
+                    userId: {
+                        equals: Number(receiver),
+                    },
+                    currencyId: {
+                        equals: Number(currency),
+                    }
+                }
+            ]
+        }
+    })
+
+    
+    // If it does not exist, return error
+    if (!receiverAccount) {
+        return res.status(400).json({ message: "Invalid receiver account", status: 400 });
+    }
+
+    // If it does not exist, rollback but create transaction to track
+    if (senderAccount.balance < amount) {
         status = false;
         await prisma.transaction.create({
             data: {
@@ -25,81 +70,83 @@ export default async function handler(req, res) {
                 currencyId: Number(currency),
                 code: Date.now().toString(),
                 exchangeRate: 113,
-                status: status
-            }
+                status: status,
+            },
         });
-        res.status(400).json({ message: "Insufficient funds, transaction failed", status: 400 });
-    }
-    else {
+        res
+            .status(400)
+            .json({ message: "Insufficient funds, transaction failed", status: 400 });
+    } else {
         // Amount is enough to transfer
-        // get target currency
-        // convert source currency to target currency
-        // update sender account balance
-        // update receiver account balance
-        // create transaction
+
 
         const targetCurrency = await prisma.currency.findFirst({
             where: {
-                id: Number(currency)
+                id: Number(currency),
             }
+        })
+        // else convert source currency to target currency
+        let currencyConverter = new CC({
+            from: "USD",
+            to: targetCurrency.code,
+            amount: Number(amount),
         });
 
-        if (targetCurrency) {
 
-            let currencyConverter = new CC({ from: "USD", to: targetCurrency.code, amount: Number(amount) });
-
-            const curr = await currencyConverter.convert().then((response) => {
-                return convertedAmount = response;
-            })
-            // return curr;
-        }
-
-        const newBalance = user.accountBalance - Number(amount);
-        const receiverUser = await prisma.user.findUnique({
-            where: {
-                id: Number(receiver)
-            }
+        const curr = await currencyConverter.convert().then((response) => {
+            return (convertedAmount = response);
         });
 
-        const receiverBalance = receiverUser.accountBalance + Number(convertedAmount);
+
+        const newBalance = senderAccount.balance - Number(amount);
+
+        const receiverBalance =
+            receiverAccount.balance + Number(convertedAmount);
 
         // Find sender account with matching currency
         // update the balance
 
-        const userAccount = await prisma.account.findFirst({
-            where: {
-                userId: Number(session.token.sub),
-            }
-        });
-        if (userAccount) {
-            await prisma.account.update({
-                where: {
-                    id: userAccount.id
-                },
-                data: {
-                    balance: Number(newBalance)
-                }
-            });
-        }
+        console.log("====================================");
+        console.log("senderAccount", senderAccount);
+        console.log("====================================");
 
-        // const userSend = await prisma.user.update({
+
+        // const userAccount = await prisma.account.findFirst({
         //     where: {
-        //         id: user.id
+        //         userId: Number(session.token.sub),
         //     },
-        //     data: {
-        //         accountBalance: Number(newBalance)
-        //     }
         // });
+        // if (!userAccount) {
+        //     res.status(400).json({ message: "Account not found", status: 400 });
+        // }
 
-        // Find receiver account with matching currency
-        // update the balance   
-        await prisma.user.update({
+        await prisma.account.update({
             where: {
-                id: receiverUser.id
+                id: senderAccount.id,
             },
             data: {
-                accountBalance: Math.floor(receiverBalance),
-            }
+                balance: Number(newBalance),
+            },
+        });
+
+        // Find receiver of the money sent
+        // get account with matching currency sent
+        // update the balance
+
+
+        // console.log("====================================");
+        // console.log("userAccount", userAccount);
+        // console.log("====================================");
+
+        // Get the account with matching currency
+
+        await prisma.account.update({
+            where: {
+                id: receiverAccount.userId,
+            },
+            data: {
+                balance: Math.floor(receiverBalance),
+            },
         });
 
         const newTransaction = await prisma.transaction.create({
@@ -110,37 +157,17 @@ export default async function handler(req, res) {
                 currencyId: Number(currency),
                 code: Date.now().toString(),
                 exchangeRate: 113,
-                status: status
-            }
+                status: status,
+            },
         });
-        res.status(200).json({ message: "Transaction successful", status: 200, transaction: newTransaction });
+        res
+            .status(200)
+            .json({
+                message: "Transaction successful",
+                status: 200,
+                transaction: newTransaction,
+            });
     }
 
-
-    // convert currency
-    // let convertedAmount;
-    // let currencyConverter = new CC({ from: "USD", to: "EUR", amount: Number(amount) });
-
-    // const curr = await currencyConverter.convert().then((response) => {
-    //     return convertedAmount = response;
-    // })
-
-    // if (req.method === 'POST') {
-
-
-    //     console.log("Session user",session.token);
-    //     const transaction = await prisma.transaction.create({
-    //         data: {
-    //             senderId: Number(session.token.sub),
-    //             userId: Number(receiver),
-    //             code: Date.now().toString(),
-    //             currencyId: Number(currency),
-    //             exchangeRate: 113,
-    //             value: Math.floor(convertedAmount),
-    //             status: status
-    //         }
-    //     })
-    //     res.status(200).json({message: "transaction created", data: transaction})
-    // }
     res.status(405).send(`Method ${req.method} Not Allowed`);
 }

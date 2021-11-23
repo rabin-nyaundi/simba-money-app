@@ -1,25 +1,27 @@
-import Link from 'next/link';
+import Link from "next/link";
 import prisma from "../../lib/prisma";
 import Layout from "../../components/Layout/Layout";
 import Table from "../../components/ui/Table/Table";
 import { getSession } from "next-auth/react";
 
 export default function Index({ transactions, user, balances }) {
-
     return (
         <>
             <Layout>
-                <div className="flex flex-row w-full p-4 justify-between">
+                <div className="flex flex-row w-full justify-between">
                     <div className="flex flex-row justify-between p-4">
                         {balances.map((account, key) => (
                             <div key={key} className="flex">
-                                <span className="font-bold ml-4 mr-4">Balance :</span> <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">{account.balance} USD</span>
+                                <span className="font-bold ml-4 mr-4">Balance :</span>{" "}
+                                <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">
+                                    {account.balance} USD
+                                </span>
                             </div>
                         ))}
                     </div>
-                    <div className="flex flex-row">
+                    <div className="flex flex-rcol">
                         <Link href="/transact/new-transaction">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm px-2 rounded focus:outline-none focus:shadow-outline">
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs px-2 rounded focus:outline-none focus:shadow-outline">
                                 New Transaction
                             </button>
                         </Link>
@@ -27,13 +29,11 @@ export default function Index({ transactions, user, balances }) {
                 </div>
                 <Table transactions={transactions} />
             </Layout>
-
         </>
-    )
+    );
 }
 
 export async function getServerSideProps(context) {
-
     const { req } = context;
 
     const session = await getSession({ req });
@@ -41,44 +41,57 @@ export async function getServerSideProps(context) {
     if (!session) {
         return {
             redirect: {
-                destination: '/auth/login',
+                destination: "/auth/login",
                 permanent: false,
-            }
-        }
+            },
+        };
     }
 
     const user = await prisma.user.findUnique({
         where: {
-            email: session.token.email
-        }
-    })
+            email: session.token.email,
+        },
+    });
 
-
+   
     const transactions = await prisma.transaction.findMany({
+        where: {
+            OR: [
+                {
+                    senderId: {
+                        equals: Number(session.token.sub),
+                    }
+                },
+                {
+                    userId:{
+                        equals: Number(session.token.sub),
+                    }
+                }
+            ],
+        },
         include: {
             sender: {
                 select: {
-                    name: true
-                }
+                    name: true,
+                },
             },
             receiver: {
                 select: {
-                    name: true
-                }
+                    name: true,
+                },
             },
             currency: {
                 select: {
-                    code: true
-                }
+                    code: true,
+                },
             },
-
-        }
-    })
+        },
+    });
 
     const balances = await prisma.account.findMany({
         where: {
-            userId: Number(session.token.sub)
-        }
+            userId: Number(session.token.sub),
+        },
     });
 
     console.log("balances", balances);
@@ -87,7 +100,7 @@ export async function getServerSideProps(context) {
             transactions: transactions,
             user: user,
             session: session,
-            balances: balances
-        }
-    }
+            balances: balances,
+        },
+    };
 }

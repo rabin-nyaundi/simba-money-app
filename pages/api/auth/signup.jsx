@@ -39,14 +39,14 @@ export default async function handler(req, res) {
       });
 
       if (currency) {
-        const bank = await prisma.account.create({
+        await prisma.account.create({
           data: {
             userId: user.id,
             currencyId: currency.id,
             balance: 1000,
           }
         });
-        return res.status(200).json({ message: "Account created successfully" });
+        res.status(200).json({ message: "Account created successfully" });
       }
       else {
         res.status(400).json({ message: "Bank not found" });
