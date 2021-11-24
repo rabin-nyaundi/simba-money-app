@@ -7,6 +7,8 @@ export default async function handler(req, res) {
 
     let convertedAmount;
     let status = true;
+    let receiverAccount;
+    // let senderAccount;
     
     const session = await getSession({ req });
 
@@ -22,7 +24,17 @@ export default async function handler(req, res) {
     // Find the sending account (to be debited)
     const senderAccount = await prisma.account.findFirst({
         where: {
-            userId: user.id,
+            AND: [
+                {
+                    userId: {
+                        equals: user.id
+                    },
+                    currencyId: {
+                        equals: Number(1)
+                    }
+                }
+            ]
+            // userId: user.id,
         }
     });
     // If it doesn't exist, return error
@@ -38,7 +50,7 @@ export default async function handler(req, res) {
     });
 
     // find receiver user's account which matches the target currency(account to be credited)
-    const receiverAccount = await prisma.account.findFirst({
+    receiverAccount = await prisma.account.findFirst({
         where: {
             AND: [
                 {
@@ -56,8 +68,22 @@ export default async function handler(req, res) {
     
     // If it does not exist, return error
     if (!receiverAccount) {
-        return res.status(400).json({ message: "Invalid receiver account", status: 400 });
+        receiverAccount = await prisma.account.create({
+            data: {
+                userId: receiverUser.id,
+                currencyId: Number(currency),
+                balance: Number(0)
+            }
+        })
+
+        return receiverAccount;
+        // return res.status(400).json({ message: "Invalid receiver account", status: 400 });
     }
+
+
+    console.log('====================================');
+    console.log(receiverAccount, "Receiver Account and balance");
+    console.log('====================================');
 
     // If it does not exist, rollback but create transaction to track
     if (senderAccount.balance < amount) {
@@ -69,7 +95,7 @@ export default async function handler(req, res) {
                 value: Number(amount),
                 currencyId: Number(currency),
                 code: Date.now().toString(),
-                exchangeRate: 113,
+                // exchangeRate: 113,
                 status: status,
             },
         });
@@ -85,6 +111,11 @@ export default async function handler(req, res) {
                 id: Number(currency),
             }
         })
+
+
+        console.log('====================================');
+        console.log(targetCurrency, "Target Currency");
+        console.log('====================================');
         // else convert source currency to target currency
         let currencyConverter = new CC({
             from: "USD",
@@ -102,6 +133,10 @@ export default async function handler(req, res) {
 
         const receiverBalance =
             receiverAccount.balance + Number(convertedAmount);
+        
+        console.log("====================================");
+        console.log("receiver Balance", receiverBalance);
+        console.log("====================================");
 
         // Find sender account with matching currency
         // update the balance
@@ -120,9 +155,11 @@ export default async function handler(req, res) {
         //     res.status(400).json({ message: "Account not found", status: 400 });
         // }
 
-        await prisma.account.update({
+        await prisma.account.updateMany({
+            
             where: {
-                id: senderAccount.id,
+                userId: senderAccount.id,
+                currencyId: senderAccount.currencyId
             },
             data: {
                 balance: Number(newBalance),
@@ -134,15 +171,12 @@ export default async function handler(req, res) {
         // update the balance
 
 
-        // console.log("====================================");
-        // console.log("userAccount", userAccount);
-        // console.log("====================================");
-
         // Get the account with matching currency
 
-        await prisma.account.update({
+        await prisma.account.updateMany({
             where: {
-                id: receiverAccount.userId,
+                userId: receiverAccount.userId,
+                currencyId:  receiverAccount.currencyId,
             },
             data: {
                 balance: Math.floor(receiverBalance),
@@ -156,7 +190,7 @@ export default async function handler(req, res) {
                 value: Math.floor(convertedAmount),
                 currencyId: Number(currency),
                 code: Date.now().toString(),
-                exchangeRate: 113,
+                // exchangeRate: 113,
                 status: status,
             },
         });

@@ -18,7 +18,7 @@ model Transaction {
   code         String    @unique
   currency     Currency? @relation(fields: [currencyId], references: [id])
   currencyId   Int?
-  exchangeRate Int       @map(name: "exchange_rate")
+  // exchangeRate Int       @map(name: "exchange_rate")
   value        Int?      @default(1000)
   status       Boolean   @default(false)
 
@@ -45,7 +45,7 @@ model User {
 model Currency {
   id           Int       @id @default(autoincrement())
   code         String    @unique
-  exchangeRate Int       @map(name: "exchange_rate")
+  // exchangeRate Int       @map(name: "exchange_rate")
   createdAt    DateTime? @default(now()) @map(name: "created_at")
   updatedAt    DateTime? @default(now()) @map(name: "updated_at")
 

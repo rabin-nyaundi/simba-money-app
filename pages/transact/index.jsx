@@ -10,11 +10,11 @@ export default function Index({ transactions, user, balances }) {
             <Layout>
                 <div className="flex flex-row w-full justify-between">
                     <div className="flex flex-row justify-between p-4">
+                        <span className="font-bold ml-4 mr-4">Balances :</span>{" "}
                         {balances.map((account, key) => (
                             <div key={key} className="flex">
-                                <span className="font-bold ml-4 mr-4">Balance :</span>{" "}
                                 <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">
-                                    {account.balance} USD
+                                    {account.balance} {account.currency.code}
                                 </span>
                             </div>
                         ))}
@@ -88,10 +88,21 @@ export async function getServerSideProps(context) {
         },
     });
 
+    console.log('====================================');
+    console.log(transactions," All transactions");
+    console.log('====================================');
+
     const balances = await prisma.account.findMany({
         where: {
             userId: Number(session.token.sub),
         },
+        include: {
+            currency: {
+                select: {
+                    code: true
+                }
+            }
+        }
     });
 
     console.log("balances", balances);
