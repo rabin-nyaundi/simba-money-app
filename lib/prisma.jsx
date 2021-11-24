@@ -12,6 +12,6 @@ import { PrismaClient } from "@prisma/client";
 //     prisma = global.prisma
 // }
 
-let prisma = new PrismaClient();
+prisma = new PrismaClient();
 
 export default prisma;
