@@ -19,7 +19,7 @@ export default function Login() {
         await signIn("credentials", {
           email: data.email,
           password: data.password,
-          callbackUrl: "http://localhost:3000",
+          callbackUrl: "https://https://simba-money-transfer-web-app.vercel.app/",
         });
       return;
     }

@@ -52,12 +52,7 @@ const options = {
     //   }
     //   return token;
     // },
-    // async session({ session, token }) {
-    //   if (user) {
-    //     session.user = user;
-    //   }
-    //   return session;
-    // }
+  
   },
 
   session: {
