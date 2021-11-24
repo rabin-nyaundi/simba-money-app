@@ -5,7 +5,8 @@ import { compare } from "bcryptjs";
 
 let userAccount;
 
-export default NextAuth({
+
+const options = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -69,7 +70,6 @@ export default NextAuth({
     signIn: "/auth/login",
     signOut: "/auth/login"
   },
-
-  // adapter: PrismaAdapter(prisma)
-});
+}
+export default (req, res) => NextAuth( req, res, options);
 
