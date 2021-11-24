@@ -1,21 +1,27 @@
-import Link from 'next/link';
+import Link from "next/link";
 import prisma from "../../lib/prisma";
 import Layout from "../../components/Layout/Layout";
 import Table from "../../components/ui/Table/Table";
 import { getSession } from "next-auth/react";
 
-export default function Index({ transactions, user }) {
-
+export default function Index({ transactions, user, balances }) {
     return (
         <>
             <Layout>
-                <div className="flex flex-row w-full p-4 justify-between">
-                    <div className="flex p-4">
-                        <span className="font-bold ml-4 mr-4">Balance :</span> <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">{user.accountBalance} USD</span>
+                <div className="flex flex-row w-full justify-between">
+                    <div className="flex flex-row justify-between p-4">
+                        <span className="font-bold ml-4 mr-4">Balances :</span>{" "}
+                        {balances.map((account, key) => (
+                            <div key={key} className="flex">
+                                <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">
+                                    {account.balance} {account.currency.code}
+                                </span>
+                            </div>
+                        ))}
                     </div>
-                    <div className="flex flex-row">
+                    <div className="flex flex-rcol">
                         <Link href="/transact/new-transaction">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm px-2 rounded focus:outline-none focus:shadow-outline">
+                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs px-2 rounded focus:outline-none focus:shadow-outline">
                                 New Transaction
                             </button>
                         </Link>
@@ -23,13 +29,11 @@ export default function Index({ transactions, user }) {
                 </div>
                 <Table transactions={transactions} />
             </Layout>
-
         </>
-    )
+    );
 }
 
 export async function getServerSideProps(context) {
-
     const { req } = context;
 
     const session = await getSession({ req });
@@ -37,44 +41,77 @@ export async function getServerSideProps(context) {
     if (!session) {
         return {
             redirect: {
-                destination: '/auth/login',
+                destination: "/auth/login",
                 permanent: false,
-            }
-        }
+            },
+        };
     }
 
     const user = await prisma.user.findUnique({
         where: {
-            email: session.token.email
-        }
-    })
+            email: session.token.email,
+        },
+    });
 
-
+   
     const transactions = await prisma.transaction.findMany({
+        where: {
+            OR: [
+                {
+                    senderId: {
+                        equals: Number(session.token.sub),
+                    }
+                },
+                {
+                    userId:{
+                        equals: Number(session.token.sub),
+                    }
+                }
+            ],
+        },
         include: {
             sender: {
                 select: {
-                    name: true
-                }
+                    name: true,
+                },
             },
             receiver: {
                 select: {
-                    name: true
-                }
+                    name: true,
+                },
             },
+            currency: {
+                select: {
+                    code: true,
+                },
+            },
+        },
+    });
+
+    console.log('====================================');
+    console.log(transactions," All transactions");
+    console.log('====================================');
+
+    const balances = await prisma.account.findMany({
+        where: {
+            userId: Number(session.token.sub),
+        },
+        include: {
             currency: {
                 select: {
                     code: true
                 }
             }
         }
-    })
-    console.log(transactions);
+    });
+
+    console.log("balances", balances);
     return {
         props: {
             transactions: transactions,
             user: user,
-            session: session
-        }
-    }
+            session: session,
+            balances: balances,
+        },
+    };
 }

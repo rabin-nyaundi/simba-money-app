@@ -31,6 +31,92 @@ export default async function handler(req, res) {
           password: await hash(password, 12),
         },
       });
+
+      const currency = await prisma.currency.findFirst({
+        where: {
+          code: 'USD'
+        }
+      });
+
+      if (currency) {
+        await prisma.account.create({
+          data: {
+            userId: user.id,
+            currencyId: currency.id,
+            balance: 1000,
+          }
+        });
+        res.status(200).json({ message: "Account created successfully" });
+      }
+
+      else {
+        await prisma.currency.createMany({
+          data: [
+            {
+              code: 'USD',
+            },
+            {
+              code: 'NGN'
+            },
+            {
+              code: "EUR"
+            }
+          ]
+        })
+        res.status(200).json({ message: "Currencies created" });
+      }
+
+      const USDCurrency = await prisma.currency.findFirst({
+        where: {
+          code: "USD",
+        }
+      });
+
+      console.log('====================================');
+      console.log(USDCurrency, "The USDCurrency found");
+      console.log('====================================');
+
+      if (USDCurrency) {
+        const accountUSD = await prisma.account.findFirst({
+          where: {
+            AND: [
+              {
+                userId: {
+                  equals: user.id
+                },
+                currencyId: {
+                  equals: USDCurrency.id
+                }
+              }
+            ]
+          }
+        })
+
+        if (!accountUSD) {
+          
+          await prisma.account.create({
+            data: {
+              userId: user.id,
+              currencyId: USDCurrency.id,
+              balance: 1000
+            }
+          })
+        }
+
+      }
+
+      const transaction = await prisma.transaction.create({
+        data: {
+          senderId: user.id,
+          userId: user.id,
+          value: 1000,
+          currencyId: USDCurrency.id,
+          code: Date.now().toString(),
+          // exchangeRate: 113,
+          status: true
+        }
+      })
+
       res.status(200).json({ message: "User created", user: user });
     }
   }

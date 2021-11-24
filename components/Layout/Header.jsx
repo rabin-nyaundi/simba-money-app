@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'
 
 import {
     Popover, Transition
@@ -87,15 +88,21 @@ export default function Header() {
                 <div className="max-w-8xl mx-auto px-4 sm:px-6">
                     <div className="flex justify-between items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10">
                         <div className="flex justify-start lg:w-0 lg:flex-1">
-                            <a href="#">
+                            <Link
+                                href="/"
+                            >
+                            <a>
                                 <span className="sr-only">Simba Money</span>
-                                <img
+                                <Image
                                     className="h-8 w-auto sm:h-10"
                                     src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
                                     alt=""
+                                    width={30}
+                                    height={30}
                                 />
                             </a>
-                            <Link href="/">
+                            </Link>
+                            <Link className="p-10" href="/">
                                 <a className="ml-10 md:ml-6 text-lg font-medium leading-6 text-gray-900">Home</a>
                             </Link>
                         </div>
@@ -139,15 +146,19 @@ export default function Header() {
                                                     <div className="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8">
                                                         {transactions.map((item) => (
                                                             <Link
-                                                                key={item.name}
+
                                                                 href={item.href}
-                                                                className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50"
                                                             >
-                                                                <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
-                                                                <div className="ml-4">
-                                                                    <p className="text-base font-medium text-gray-900">{item.name}</p>
-                                                                    <p className="mt-1 text-sm text-gray-500">{item.description}</p>
-                                                                </div>
+                                                                <a
+                                                                    key={item.name}
+                                                                    className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50"
+                                                                >
+                                                                    <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
+                                                                    <div className="ml-4">
+                                                                        <p className="text-base font-medium text-gray-900">{item.name}</p>
+                                                                        <p className="mt-1 text-sm text-gray-500">{item.description}</p>
+                                                                    </div>
+                                                                </a>
                                                             </Link>
                                                         ))}
                                                     </div>
@@ -190,17 +201,20 @@ export default function Header() {
                                                 <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
                                                     <div className="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8">
                                                         {currency.map((item) => (
-                                                            <a
-                                                                key={item.code}
+                                                            <Link
                                                                 href={item.href}
-                                                                className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50"
                                                             >
-                                                                <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
-                                                                <div className="ml-4">
-                                                                    <p className="text-base font-medium text-gray-900">{item.code}</p>
-                                                                    <p className="mt-1 text-sm text-gray-500">{item.name}</p>
-                                                                </div>
-                                                            </a>
+                                                                <a
+                                                                    key={item.code}
+                                                                    className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50"
+                                                                >
+                                                                    <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
+                                                                    <div className="ml-4">
+                                                                        <p className="text-base font-medium text-gray-900">{item.code}</p>
+                                                                        <p className="mt-1 text-sm text-gray-500">{item.name}</p>
+                                                                    </div>
+                                                                </a>
+                                                            </Link>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -222,16 +236,16 @@ export default function Header() {
                                 </> :
                                 <>
                                     <Link href="/auth/login">
-                                    <a className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
-                                        Sign in
-                                        </a>
+                                        <button className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
+                                            Sign in
+                                        </button>
                                     </Link>
                                     <Link href="/auth/signup">
-                                        <a
+                                        <button
                                             className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                                         >
                                             Sign up
-                                        </a>
+                                        </button>
 
                                     </Link>
                                 </>}
@@ -266,14 +280,17 @@ export default function Header() {
                                         <div className="mt-6">
                                             <nav className="grid gap-y-8">
                                                 {transactions.map((item) => (
-                                                    <a
-                                                        key={item.name}
+                                                    <Link
                                                         href={item.href}
-                                                        className="-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
                                                     >
-                                                        <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
-                                                        <span className="ml-3 text-base font-medium text-gray-900">{item.name}</span>
-                                                    </a>
+                                                        <button
+                                                            key={item.name}
+                                                            className="-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
+                                                        >
+                                                            <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
+                                                            <span className="ml-3 text-base font-medium text-gray-900">{item.name}</span>
+                                                        </button>
+                                                    </Link>
                                                 ))}
                                             </nav>
                                         </div>
@@ -281,24 +298,28 @@ export default function Header() {
                                     <div className="py-6 px-5 space-y-6">
                                         <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                                             {currency.map((item) => (
-                                                <a
-                                                    key={item.name}
-                                                    href={item.href}
-                                                    className="text-base font-medium text-gray-900 hover:text-gray-700"
+                                                <Link
+                                                    href={`item.href`}
                                                 >
-                                                    {item.name}{" "}({item.code})
-                                                </a>
+                                                    <a
+                                                        key={item.name}
+                                                        className="text-base font-medium text-gray-900 hover:text-gray-700">
+                                                        {item.name}{" "}({item.code})
+                                                    </a>
+                                                </Link>
                                             ))}
                                         </div>
                                         <div>
                                             {session ?
                                                 <>
-                                                    <a
-                                                        onClick={signOut}
-                                                        className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                                                    >
-                                                        Logout
-                                                    </a>
+                                                    <Link href="#">
+                                                        <button
+                                                            onClick={signOut}
+                                                            className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                                                        >
+                                                            Logout
+                                                        </button>
+                                                    </Link>
                                                 </> :
                                                 <>
                                                     <a
@@ -308,10 +329,12 @@ export default function Header() {
                                                         Sign up
                                                     </a>
                                                     <p className="mt-6 text-center text-base font-medium text-gray-500">
-                                                        Existing customer?{' '}
-                                                        <a href="#" className="text-indigo-600 hover:text-indigo-500">
-                                                            Sign in
-                                                        </a>
+                                                        Existing user?{' '}
+                                                        <Link href="/auth/login">
+                                                            <a className="text-indigo-600 hover:text-indigo-500">
+                                                                Sign in
+                                                            </a>
+                                                        </Link>
                                                     </p>
                                                 </>}
                                         </div>

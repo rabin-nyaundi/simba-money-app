@@ -8,7 +8,7 @@ export default function TableBody({ transactions, session }) {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.code}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.sender.name || null}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.receiver.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.currency.code}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{"USD"}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.currency.code}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.value}</td>
                         <td className="px-6 py-4 whitespace-nowrap">

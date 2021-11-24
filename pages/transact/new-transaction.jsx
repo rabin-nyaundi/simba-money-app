@@ -39,12 +39,6 @@ export default function Transaction({ users, currency }) {
         )
     }
 
-    // async function getMySessions() {
-    //     const sess = await getSession()
-    //     console.log("sess", sess);
-    // }
-    // getMySessions();
-
 
     return (
         <>
@@ -59,6 +53,17 @@ export default function Transaction({ users, currency }) {
 }
 
 export async function getServerSideProps(context) {
+
+    const session = await getSession({ req: context.req });
+
+    if (!session) {
+        return {
+            redirect: {
+                destination: "/auth/login",
+                permanent: false,
+            }
+        }
+    }
 
     const users = await prisma.user.findMany({
         include: {
