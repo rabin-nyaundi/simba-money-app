@@ -13,16 +13,17 @@ export default function Login() {
     router.push('/');
     return;
   }
-    
-    async function handleLogin(data) {
-        console.log("Login form", data);
-        await signIn("credentials", {
-          email: data.email,
-          password: data.password,
-          callbackUrl: "https://simba-money-transfer-web-app.vercel.app/",
-        });
-      return;
-    }
+
+  async function handleLogin(data) {
+    let email = data.email;
+    let password = data.password;
+    const result = await signIn("credentials", {
+      email,
+      password,
+      callbackUrl: "https://simba-money-transfer-web-app.vercel.app/",
+    });
+    return result;
+  }
   return (
     <>
       <ToastContainer
