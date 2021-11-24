@@ -72,10 +72,6 @@ export default async function handler(req, res) {
         }
       });
 
-      console.log('====================================');
-      console.log(USDCurrency, "The USDCurrency found");
-      console.log('====================================');
-
       if (USDCurrency) {
         const accountUSD = await prisma.account.findFirst({
           where: {

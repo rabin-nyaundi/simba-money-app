@@ -113,9 +113,7 @@ export default async function handler(req, res) {
         })
 
 
-        console.log('====================================');
-        console.log(targetCurrency, "Target Currency");
-        console.log('====================================');
+    
         // else convert source currency to target currency
         let currencyConverter = new CC({
             from: "USD",
@@ -134,16 +132,12 @@ export default async function handler(req, res) {
         const receiverBalance =
             receiverAccount.balance + Number(convertedAmount);
         
-        console.log("====================================");
-        console.log("receiver Balance", receiverBalance);
-        console.log("====================================");
+      
 
         // Find sender account with matching currency
         // update the balance
 
-        console.log("====================================");
-        console.log("senderAccount", senderAccount);
-        console.log("====================================");
+    
 
 
         // const userAccount = await prisma.account.findFirst({
