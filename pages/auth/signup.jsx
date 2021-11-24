@@ -2,7 +2,7 @@ import { getSession } from "next-auth/react";
 import { useRouter } from "next/dist/client/router";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
-import SignupForm from "../../components/auth/signupForm";
+import SignupForm from "../../components/auth/SignupForm";
 
 export default function SignUp() {
   const router = useRouter();
