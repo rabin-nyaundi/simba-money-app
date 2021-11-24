@@ -91,16 +91,16 @@ export default function Header() {
                             <Link
                                 href="/"
                             >
-                            <a>
-                                <span className="sr-only">Simba Money</span>
-                                <Image
-                                    className="h-8 w-auto sm:h-10"
-                                    src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-                                    alt=""
-                                    width={30}
-                                    height={30}
-                                />
-                            </a>
+                                <a>
+                                    <span className="sr-only">Simba Money</span>
+                                    <Image
+                                        className="h-8 w-auto sm:h-10"
+                                        src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                                        alt=""
+                                        width={30}
+                                        height={30}
+                                    />
+                                </a>
                             </Link>
                             <Link className="p-10" href="/">
                                 <a className="ml-10 md:ml-6 text-lg font-medium leading-6 text-gray-900">Home</a>
@@ -201,8 +201,8 @@ export default function Header() {
                                                     <div className="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8">
                                                         {currency.map((item) => (
                                                             <Link
-                                                            key={item.code}
-                                                            href={item.href}
+                                                                key={item.code}
+                                                                href={item.href}
                                                             >
                                                                 <a
                                                                     className="-m-3 p-3 flex items-start rounded-lg hover:bg-gray-50"
@@ -280,10 +280,10 @@ export default function Header() {
                                             <nav className="grid gap-y-8">
                                                 {transactions.map((item) => (
                                                     <Link
+                                                        key={item.name}
                                                         href={item.href}
                                                     >
                                                         <button
-                                                            key={item.name}
                                                             className="-m-3 p-3 flex items-center rounded-md hover:bg-gray-50"
                                                         >
                                                             <item.icon className="flex-shrink-0 h-6 w-6 text-indigo-600" aria-hidden="true" />
@@ -298,8 +298,8 @@ export default function Header() {
                                         <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                                             {currency.map((item) => (
                                                 <Link
-                                                href={`item.href`}
-                                                key={item.name}
+                                                    href={`item.href`}
+                                                    key={item.name}
                                                 >
                                                     <a
                                                         className="text-base font-medium text-gray-900 hover:text-gray-700">

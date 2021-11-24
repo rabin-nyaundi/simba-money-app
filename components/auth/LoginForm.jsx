@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 
-export default function loginForm({handleLogin}) {
+export default function LoginForm({handleLogin}) {
 
     const emailInputRef = useRef();
     const passwordInputRef = useRef();
