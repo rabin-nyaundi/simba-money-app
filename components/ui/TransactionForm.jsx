@@ -29,7 +29,7 @@ export default function TransactionForm({ handleTransaction, users, currency }) 
                     onSubmit={handleSubmit}
                 >
                     <div className="w-full md:w-full px-3 mb-6 md:mb-0 py-4 px-4">
-                        <label class="block uppercase tracking-wide text-gray-600 text-xs font-bold mb-2">
+                        <label className="block uppercase tracking-wide text-gray-600 text-xs font-bold mb-2">
                             Send to
                         </label>
                         <div className="relative">

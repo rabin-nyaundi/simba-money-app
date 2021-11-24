@@ -1,5 +1,5 @@
 import { ToastContainer } from "react-toastify";
-import LoginForm from "../../components/auth/loginForm";
+import LoginForm from "../../components/auth/LoginForm";
 import { useSession, signIn, signOut, getSession } from "next-auth/react";
 import { Router, useRouter } from "next/dist/client/router";
 
