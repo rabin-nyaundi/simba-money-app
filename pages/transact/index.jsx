@@ -88,9 +88,6 @@ export async function getServerSideProps(context) {
         },
     });
 
-    console.log('====================================');
-    console.log(transactions," All transactions");
-    console.log('====================================');
 
     const balances = await prisma.account.findMany({
         where: {
