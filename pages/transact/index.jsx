@@ -13,7 +13,7 @@ export default function Index({ transactions, user, balances }) {
                         <span className="font-bold ml-4 mr-4">Balances :</span>{" "}
                         {balances.map((account, key) => (
                             <div key={key} className="flex">
-                                <span class="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">
+                                <span className="bg-green-600 text-white text-lg font-medium mr-2 px-2.5 py-0.5 rounded-md">
                                     {account.balance} {account.currency.code}
                                 </span>
                             </div>
